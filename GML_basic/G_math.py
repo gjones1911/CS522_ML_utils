@@ -26,8 +26,12 @@ class G_solver:
 
     # calculate the gaussian value fo the given x value
     # with given mean and variance
-    def Nx_gaussian(self, x, mu, sig):
-        return ((1 / (sig * sqrt(2 * np.pi)))) * exp((-(x - mu) ** 2) / (2 * sig ** 2))
+    def Nx_gaussian(self, x, mu, sig, prior=None, verbose=False):
+        if prior is None:
+            if verbose:
+                print('it is none')
+            return ((1 / (sig * sqrt(2 * np.pi)))) * exp((-(x - mu) ** 2) / (2 * sig ** 2))
+        return ((1 / (sig * sqrt(2 * np.pi)))) * exp((-(x - mu) ** 2) / (2 * sig ** 2))*prior
 
 
     def get_box_dims(self, xl, xm, lines=True, vden=50, hden=20, fancy=False):

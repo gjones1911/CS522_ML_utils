@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.integrate import quad
 from math import sqrt, exp
 import matplotlib.pyplot as plt
 from GML_basic.G_math import G_solver
@@ -142,15 +143,15 @@ print('N3: {:.4f}'.format(N3[0]))
 print(linebreak)
 print(linebreak)
 print(linebreak)
-x = 4.7
+x = [4.7]
 Ncs = [[4,2],
        [6,3],
        [5,2]]
 
 priors = [.6, .2, .2]
-N1 = gs.generate_gaussian(xval, 4, 2)
-N2 = gs.generate_gaussian(xval, 6, 3)
-N3 = gs.generate_gaussian(xval, 5, 2)
+N1 = gs.generate_gaussian(x, 4, 2)
+N2 = gs.generate_gaussian(x, 6, 3)
+N3 = gs.generate_gaussian(x, 5, 2)
 
 N1 = np.array(N1) * priors[0]
 N2 = np.array(N2) * priors[1]
@@ -174,9 +175,11 @@ print()
 xvals = np.linspace(-4, 15, num=100, endpoint=True).tolist()
 Ns = gs.generate_posteriori_probs(xvals, Ncs, priors)
 plt.figure(fig_num)
-plt.plot(xvals, Ns[0], 'b--')
-plt.plot(xvals, Ns[1], 'r--')
-plt.plot(xvals, Ns[2], 'g--')
+plt.plot(xvals, Ns[0], 'b--', label='Class 1')
+plt.plot(xvals, Ns[1], 'r--', label='Class 2')
+plt.plot(xvals, Ns[2], 'g--', label='Class 3')
+plt.title('Posteriori Probability')
+plt.legend()
 #print(Z)
 fig_num += 1
 
@@ -205,5 +208,31 @@ h_pos, l_pos, ll_pos, tl_pos, rl_pos = gs.get_box_dims(xl_pos, xm_pos, lines=Tru
 
 gs.plot_box(ll_neg, tl_neg, rl_neg, figure_num=fig_num, showit=False, c='r')
 gs.plot_box(ll_pos, tl_pos, rl_pos, figure_num=fig_num, showit=False, c='b')
+# #############################################################
+# #############################################################
+# ##########    Lets do some integration    ###################
+# #############################################################
+# #############################################################
 
+err_N1 = quad(gs.Nx_gaussian, 4.5, 6.897906, args=(4,2,1/3, True))
+print('quad', err_N1)
+print(linebreak)
+print(linebreak)
+print(linebreak)
+print(linebreak)
+print(linebreak)
+print(linebreak)
+print(linebreak)
+print(linebreak)
+err_N1 = (quad(gs.Nx_gaussian, 4.5, 6.897906, args=(4,2, .333))[0] + quad(gs.Nx_gaussian, 6.897906, np.inf, args=(4,2,1/3))[0] +quad(gs.Nx_gaussian, -np.inf, 1.502, args=(4,2,1/3))[0])
+err_N2 = (quad(gs.Nx_gaussian, 4.5, 6.897906, args=(6,3))[0] + quad(gs.Nx_gaussian, 1.502, 4.5, args=(6,3))[0])*1/3
+err_N2a = (quad(gs.Nx_gaussian, 4.5, 6.897906, args=(6,3,1/3))[0] + quad(gs.Nx_gaussian, 1.502, 4.5, args=(6,3,1/3))[0])
+err_N3 = (quad(gs.Nx_gaussian, 1.502, 4.5, args=(5,2))[0] + quad(gs.Nx_gaussian, 6.897906, np.inf, args=(5,2))[0] +quad(gs.Nx_gaussian, -np.inf, 1.502, args=(5,2))[0])*1/3
+should_one = quad(gs.Nx_gaussian, -np.inf, np.inf, args=(4,2))[0]
+print('The probability of error for N1: {:f}'.format(err_N1))
+print('The probability of error for N2: {:f}'.format(err_N2))
+print('The probability of error for N2a: {:f}'.format(err_N2a))
+print('The probability of error for N3: {:f}'.format(err_N3))
+print('The overall probability of error: {:f}'.format(err_N1 + err_N2 + err_N3))
+print('hopefully one: {:f}'.format(should_one))
 plt.show()
